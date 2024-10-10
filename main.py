@@ -4,7 +4,7 @@ contact: vinicius.gadelha@upc.edu
 date: 10/2024
 
 Main python file to run the congestion application server. It requires as inputs a pandapower network and forecast
-of its loads and generation to run a timeseries powerflow and check for congestions.
+of its loads and generation to run a timeseries powerflow and check for congestions. testeando um cambio
 """
 
 import pandapower as pp
