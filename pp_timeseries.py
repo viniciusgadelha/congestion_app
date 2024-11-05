@@ -37,6 +37,15 @@ def create_controllers(net, ds, flex_activation=False):
     for i in net.load.index:
         ConstControl(net, element='load', variable='p_mw', element_index=i,
                      data_source=ds, profile_name=["load_" + str(i)], scale_factor=0.001)
+
+    for i in net.load.index:
+        ConstControl(net, element='load', variable='q_mvar', element_index=i,
+                     data_source=ds, profile_name=["load_q" + str(i)], scale_factor=0.001)
+
+    for i in net.sgen.index:
+        ConstControl(net, element='sgen', variable='p_mw', element_index=i,
+                     data_source=ds, profile_name=["sgen_" + str(i)], scale_factor=0.001)
+
     if flex_activation:
         flex_request = pd.read_csv('results/flex_request.csv', index_col=0)
         if not flex_request.empty:

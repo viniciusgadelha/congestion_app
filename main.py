@@ -13,10 +13,13 @@ from pp_timeseries import timeseries_pf
 from pandapower.plotting import pf_res_plotly, simple_plotly
 from plot import plot_grid
 
+from pandapower.plotting.plotly.mapbox_plot import set_mapbox_token
+set_mapbox_token('pk.eyJ1IjoidmluaWNpdXNnYWQiLCJhIjoiY2xseXp6d3llMHZ6azNrczZmc3JqdzJhYyJ9.TEYsgM85dVun46w_lpOKrw')
+
 if __name__ == "__main__":
 
     # variables definition
-    path_net = 'grids/ct217_grid_model_v0.2.xlsx'
+    path_net = 'grids/ct217_grid_model_v0.3.xlsx'
     net = pp.from_excel(path_net)   # cambiar para poder pasar por parametro
     net.sgen.p_mw = 0  # set PVs to zero since we are not using exported energy yet
     output_path = 'results/time_series_results'
@@ -35,4 +38,4 @@ if __name__ == "__main__":
     pf_res_plotly(net, figsize=1.5, on_map=True, map_style='streets')
 
 
-    # plot_grid(net)
+    plot_grid(net)
