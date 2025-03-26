@@ -29,27 +29,31 @@ def create_profiles(net, path='inputs/Profiles_load_CT217_one_week_2.xlsx', ):
         load_export.fillna(0, inplace=True)
         load_reactive.fillna(0, inplace=True)
 
+
+
+    received_ids = load_import.columns
+    # list_loads_net = list(net.load.SM.astype(str))  #for ct 217
+    # list_gen_net = list(net.sgen.SM.astype(str))
+
+    list_loads_net = list(net.load.name.astype(str))
+    list_gen_net = list(net.sgen.name.astype(str))
+    load_import, load_reactive, load_export = check_id_matching(net, load_import, received_ids, list_gen_net, list_loads_net, load_reactive, load_export)
+
     load_df = pd.DataFrame(index=load_import.index, columns=['load_' + str(i) for i in net.load.index])
     sgen_df = pd.DataFrame(index=load_import.index, columns=['sgen_' + str(i) for i in net.sgen.index])
     load_df_reactive = pd.DataFrame(index=load_reactive.index, columns=['load_q' + str(i) for i in net.load.index])
 
-    received_ids = load_import.columns
-    list_loads_net = list(net.load.SM.astype(str))
-    list_gen_net = list(net.sgen.SM.astype(str))
-
-    load_import, load_reactive, load_export = check_id_matching(net, load_import, received_ids, list_gen_net, list_loads_net, load_reactive, load_export)
-
     for load_id in load_import:
-        net_index = net.load[net.load.SM == load_id].index[0]
-        load_df['load_' + str(net_index)] = load_import[str(load_id)]
+        net_index = net.load[net.load.name == load_id].index[0]
+        load_df['load_' + str(net_index)] = load_import[load_id]
 
     for sgen_id in load_export:
-        net_index = net.sgen[net.sgen.SM == sgen_id].index[0]
-        sgen_df['sgen_' + str(net_index)] = load_export[str(sgen_id)]
+        net_index = net.sgen[net.sgen.name == sgen_id].index[0]
+        sgen_df['sgen_' + str(net_index)] = load_export[sgen_id]
 
     for load_id in load_reactive:
-        net_index = net.load[net.load.SM == load_id].index[0]
-        load_df_reactive['load_q' + str(net_index)] = load_reactive[str(load_id)]
+        net_index = net.load[net.load.name == load_id].index[0]
+        load_df_reactive['load_q' + str(net_index)] = load_reactive[load_id]
 
     time_range = load_import.index
 
@@ -67,31 +71,40 @@ def check_id_matching(net, load_data, received_ids, list_gen_net, list_loads_net
 
     list_ids_net = list_gen_net + list_loads_net
 
-    if len(set(list_ids_net) - set(received_ids)) > 0:
+    if len(set(list_ids_net) - set(received_ids.astype(str))) > 0:
 
-        mismatch = list(sorted(set(list_ids_net) - set(received_ids)))
+        mismatch = list(sorted(set(list_ids_net) - set(received_ids.astype(str))))
 
         print('WARNING: no data available for the following IDs: ', mismatch)
 
-    if len(set(received_ids) - set(list_loads_net)) > 0:
-        mismatch = list(sorted(set(received_ids) - set(list_loads_net)))
+        for i in mismatch:
+            if i in list_loads_net:
+                load_data[int(i)] = 0
+                load_reactive_data[int(i)] = 0
+            elif i in list_gen_net:
+                load_exported_data[int(i)] = 0
+        print('Exceeding IDs successfully removed from load data')
+
+
+    if len(set(received_ids.astype(str)) - set(list_loads_net)) > 0:
+        mismatch = list(sorted(set(received_ids.astype(str)) - set(list_loads_net)))
 
         print('WARNING: the following received IDs are mapped but not present in the loads of virtual grid: ', mismatch)
 
         for i in mismatch:
-            if str(i) in load_data.columns:
-                load_data.drop(str(i), axis=1, inplace=True)
-                load_reactive_data.drop(str(i), axis=1, inplace=True)
+            if int(i) in load_data.columns:
+                load_data.drop(int(i), axis=1, inplace=True)
+                load_reactive_data.drop(int(i), axis=1, inplace=True)
         print('Exceeding IDs successfully removed from load data')
 
-    if len(set(received_ids) - set(list_gen_net)) > 0:
-        mismatch = list(sorted(set(received_ids) - set(list_gen_net)))
+    if len(set(received_ids.astype(str)) - set(list_gen_net)) > 0:
+        mismatch = list(sorted(set(received_ids.astype(str)) - set(list_gen_net)))
 
         print('WARNING: the following received IDs are mapped but not present in the generators of the virtual grid: ', mismatch)
 
         for i in mismatch:
-            if str(i) in load_exported_data.columns:
-                load_exported_data.drop(str(i), axis=1, inplace=True)
+            if int(i) in load_exported_data.columns:
+                load_exported_data.drop(int(i), axis=1, inplace=True)
         print('Exceeding IDs successfully removed from generator data')
 
     return load_data, load_reactive_data, load_exported_data

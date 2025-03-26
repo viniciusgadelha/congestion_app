@@ -458,7 +458,7 @@ def _get_line_geodata_plotly(net, lines):
 
 
 def draw_traces(traces, on_map=False, map_style='basic', showlegend=True,
-                filename="temp-plot.html"):
+                filename="topology.html"):
     """
     plots all the traces (which can be created using :func:`create_bus_trace`, :func:`create_line_trace`,
     :func:`create_trafo_trace`)

@@ -84,7 +84,9 @@ def create_output_writer(net, time_steps, output_dir):
 
 def plot_timeseries(output_dir):
 
-    data = pd.read_excel('inputs/Profiles_load_CT217_one_week.xlsx', index_col='dataLectura')
+    # data = pd.read_excel('inputs/Profiles_load_CT217_one_week.xlsx', index_col='dataLectura')
+
+    data = pd.read_excel('inputs/Most_Loaded_Week_CT941.xlsx', index_col='dataLectura')
 
     # voltage results
     vm_pu_file = os.path.join(output_dir, "res_bus", "vm_pu.xlsx")
