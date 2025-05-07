@@ -10,7 +10,7 @@ from pandapower.control import ConstControl
 np.seterr(divide='ignore', invalid='ignore')
 
 
-def timeseries_pf(net, time_step, output_path, ds, flex_activation=False):
+def timeseries_pf(net, time_step, output_path, ds, path_forecast, flex_activation=False):
     if not os.path.exists(output_path):
         os.mkdir(output_path)
 
@@ -21,9 +21,9 @@ def timeseries_pf(net, time_step, output_path, ds, flex_activation=False):
     ow = create_output_writer(net, time_step, output_dir=output_path)
 
     # 3. run the main time series function
-    run_timeseries(net, time_step, run=pp.runpp)
+    run_timeseries(net, time_step, run=pp.runpp, numba=False)
 
-    plot_timeseries(output_path)
+    plot_timeseries(output_path, path_forecast)
 
     return
 
@@ -82,11 +82,9 @@ def create_output_writer(net, time_steps, output_dir):
     return ow
 
 
-def plot_timeseries(output_dir):
+def plot_timeseries(output_dir, path):
 
-    # data = pd.read_excel('inputs/Profiles_load_CT217_one_week.xlsx', index_col='dataLectura')
-
-    data = pd.read_excel('inputs/Most_Loaded_Week_CT941.xlsx', index_col='dataLectura')
+    data = pd.read_excel(path, index_col='dataLectura')
 
     # voltage results
     vm_pu_file = os.path.join(output_dir, "res_bus", "vm_pu.xlsx")

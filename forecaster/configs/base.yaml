@@ -1,0 +1,32 @@
+---
+lr: 0.001
+defaults:
+  - _self_
+  - strategy: FedAvg
+  - models: tcn
+
+# For FL framework
+num_rounds: 3
+num_clients_per_round: 2
+num_clients: 5
+local_epochs: 5
+
+framework:
+  centralized:
+    epochs: 10
+    model: ${models}
+    lr: ${lr}
+  isolated:
+    epochs: 3
+    model: ${models}
+    lr: ${lr}
+  fl:
+    strategy: ${strategy}
+    model: ${models}
+    num_rounds: ${num_rounds} #10 #3
+    num_clients_per_round: ${num_clients_per_round} #2 # number of clients per round (maybe change as variable of len(dataset))
+    num_clients: ${num_clients}
+    config_fit:
+      lr: ${lr}
+      local_epochs: ${local_epochs}
+      device: torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

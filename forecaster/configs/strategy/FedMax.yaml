@@ -1,0 +1,7 @@
+---
+_target_: server.FedMax
+fraction_fit: 1.00 # Choose 100% of available clients for training
+fraction_evaluate: 1.00 # Choose 100% of available clients for evaluation
+min_fit_clients: ${framework.fl.num_clients_per_round}  # Never sample less than n clients for training
+min_evaluate_clients: ${framework.fl.num_clients_per_round}  # Never sample less than n clients for evaluation
+min_available_clients: ${framework.fl.num_clients}  # Wait until all n clients are available

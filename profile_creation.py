@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from pandapower.timeseries import DFData
 
 
-def create_profiles(net, path='inputs/Profiles_load_CT217_one_week_2.xlsx', ):
+def create_profiles(net, path='inputs/Profiles_load_CT217_one_week_2.xlsx' ):
 
     # loading json datasets with the forecasting data #
     load_import = pd.read_excel(path, index_col='dataLectura', sheet_name='Import')
@@ -29,11 +29,7 @@ def create_profiles(net, path='inputs/Profiles_load_CT217_one_week_2.xlsx', ):
         load_export.fillna(0, inplace=True)
         load_reactive.fillna(0, inplace=True)
 
-
-
     received_ids = load_import.columns
-    # list_loads_net = list(net.load.SM.astype(str))  #for ct 217
-    # list_gen_net = list(net.sgen.SM.astype(str))
 
     list_loads_net = list(net.load.name.astype(str))
     list_gen_net = list(net.sgen.name.astype(str))
@@ -44,15 +40,15 @@ def create_profiles(net, path='inputs/Profiles_load_CT217_one_week_2.xlsx', ):
     load_df_reactive = pd.DataFrame(index=load_reactive.index, columns=['load_q' + str(i) for i in net.load.index])
 
     for load_id in load_import:
-        net_index = net.load[net.load.name == load_id].index[0]
+        net_index = net.load[net.load.name == int(load_id)].index[0]
         load_df['load_' + str(net_index)] = load_import[load_id]
 
     for sgen_id in load_export:
-        net_index = net.sgen[net.sgen.name == sgen_id].index[0]
+        net_index = net.sgen[net.sgen.name == int(sgen_id)].index[0]
         sgen_df['sgen_' + str(net_index)] = load_export[sgen_id]
 
     for load_id in load_reactive:
-        net_index = net.load[net.load.name == load_id].index[0]
+        net_index = net.load[net.load.name == int(load_id)].index[0]
         load_df_reactive['load_q' + str(net_index)] = load_reactive[load_id]
 
     time_range = load_import.index
@@ -62,6 +58,7 @@ def create_profiles(net, path='inputs/Profiles_load_CT217_one_week_2.xlsx', ):
     sgen_df.reset_index(inplace=True, drop=True)
     profiles_df = pd.concat([load_df, load_df_reactive], axis=1)
     profiles_df = pd.concat([profiles_df, sgen_df], axis=1)
+    profiles_df.fillna(0, inplace=True)
     ds = DFData(profiles_df)
 
     return load_df, ds, time_range
@@ -79,32 +76,34 @@ def check_id_matching(net, load_data, received_ids, list_gen_net, list_loads_net
 
         for i in mismatch:
             if i in list_loads_net:
-                load_data[int(i)] = 0
-                load_reactive_data[int(i)] = 0
+                load_data[i] = 0
+                load_reactive_data[i] = 0
+
             elif i in list_gen_net:
-                load_exported_data[int(i)] = 0
-        print('Exceeding IDs successfully removed from load data')
+                load_exported_data[i] = 0
+
+        print('Filled data from missing IDs to 0')
 
 
     if len(set(received_ids.astype(str)) - set(list_loads_net)) > 0:
         mismatch = list(sorted(set(received_ids.astype(str)) - set(list_loads_net)))
 
-        print('WARNING: the following received IDs are mapped but not present in the loads of virtual grid: ', mismatch)
+        print('WARNING: These received IDs are not present in the loads of the pandapower model: ', mismatch)
 
         for i in mismatch:
-            if int(i) in load_data.columns:
-                load_data.drop(int(i), axis=1, inplace=True)
-                load_reactive_data.drop(int(i), axis=1, inplace=True)
+            if i in load_data.columns:
+                load_data.drop(i, axis=1, inplace=True)
+                load_reactive_data.drop(i, axis=1, inplace=True)
         print('Exceeding IDs successfully removed from load data')
 
     if len(set(received_ids.astype(str)) - set(list_gen_net)) > 0:
         mismatch = list(sorted(set(received_ids.astype(str)) - set(list_gen_net)))
 
-        print('WARNING: the following received IDs are mapped but not present in the generators of the virtual grid: ', mismatch)
+        print('WARNING: These received IDs are not present in the generators of the pandapower model: ', mismatch)
 
         for i in mismatch:
-            if int(i) in load_exported_data.columns:
-                load_exported_data.drop(int(i), axis=1, inplace=True)
+            if i in load_exported_data.columns:
+                load_exported_data.drop(i, axis=1, inplace=True)
         print('Exceeding IDs successfully removed from generator data')
 
     return load_data, load_reactive_data, load_exported_data
@@ -137,3 +136,6 @@ def fill_missing_ids(mismatch, gen_set, load_set, net):
     load_set.reset_index(inplace=True, drop=True)
     print('Missing values have successfully been filled')
     return gen_set, load_set
+
+
+
