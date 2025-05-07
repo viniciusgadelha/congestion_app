@@ -1,0 +1,24 @@
+hour 2154,  we remove tarrega lleida, increases load montblanc vandellos (?)  
+
+
+4030-4032 = also disable tarrega-lleida, increases load montblanc but only a little
+
+
+5665-5667 = also disable tarrega-lleida, doesnt change load montblanc vandellos
+
+
+
+hour 8110-8112
+removing tarrega-igualada changes a lot of loading but shouldn't since there is nothing connect there.
+
+
+
+doesn't converge when removing nuclear power plant in some hours.
+
+
+
+adding the third line (igualada something), and adding the renewables generator on Lleida, it creates voltages instabillity on buses 13/2 (tarrega).
+
+with renewables on, removing nuclear add a lot of voltage instabillity.
+
+removing tarrega-lleida with renewables doesn't converge.
